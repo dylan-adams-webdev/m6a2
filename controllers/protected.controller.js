@@ -8,5 +8,5 @@ const protected = (req, res) => {
 };
 
 module.exports = {
-	protected: [authenticate, authorize(['admin'])],
+	protected: [authenticate, authorize(['admin']), protected],
 };

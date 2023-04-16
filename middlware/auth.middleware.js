@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken');
 
 const authenticate = (req, res, next) => {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization.split(" ");
     
     if (!token) {
         return next({ status: 401, message: 'Not authorized' });
     }
     
     try {
-        const decodedToken = jwt.verify(token, process.env.JWTSECRET);
+        const decodedToken = jwt.verify(token[1], process.env.JWTSECRET);
         req.user = decodedToken;
         next();
     } catch (err) {

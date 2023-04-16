@@ -20,24 +20,25 @@ const login = async (req, res, next) => {
 		const user = await User.findOne({ email });
 		if (!user) {
 			return next({ status: 400, message: 'Invalid credentials' });
-		}
+        }
+        const isMatch = await bcrypt.compare(password.toString(), user.password);
 
-		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
 			return next({ status: 400, message: 'Invalid email or password' });
-		}
-
+        }
+        
 		const token = jwt.sign(
 			{ userId: user._id, role: user.role },
 			process.env.JWTSECRET,
 			{
 				expiresIn: '10d',
 			}
-		);
+        );
 
 		const cookieOptions = {
 			expires: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-			httpOnly: true,
+            httpOnly: true,
+            secure: !process.env.NODE_ENV === 'development'
 		};
 
 		res.cookie('jwt', token, cookieOptions);
@@ -52,7 +53,13 @@ const login = async (req, res, next) => {
 	}
 };
 
+const logout = (req, res) => {
+    res.clearCookie();
+    res.json({ success: true, message: 'Logged out' });
+}
+
 module.exports = {
 	register,
-	login,
+    login,
+    logout
 };
